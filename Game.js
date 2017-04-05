@@ -28,7 +28,7 @@ function tick() {
     let move = false;
     const toMove = [];
 
-    for(let i = 0; i < GAMEDATA.length; ++i) {
+    for(let i = 0; i < GAMEDATA.length; ++i) { // decide whether blocks are rigid or not
         if(GAMEDATA[i] === null || GAMEDATA[i].Block === null) {
             GAMEDATA[i].blocked = false;
         } else {
@@ -43,25 +43,8 @@ function tick() {
     }
 
     for (let i = GAMEDATA.length - 1; i >= 0; --i) {
-        const nextRow = i + parseInt(BOARD_X);
-
         let cell = (new TableIndex(i)).cell;
 
-
-        /*
-        if(GAMEDATA[i].Block !== null && !GAMEDATA[i].blocked) { // if block exists here, and is moveable
-            //let orig = GAMEDATA[i].Block;
-            if(nextRow < GAMEDATA.length && GAMEDATA[nextRow] !== null && !GAMEDATA[nextRow].blocked) { // if space below is empty/moveable
-                //alert('moving '+i+" to "+nextRow);
-                move = true;
-                toMove.push(i);
-            }
-            else { // short circuit, can't move. (space below is not empty / not moveable)
-                move = false;
-                break;
-            }
-        }
-        */
         if(typeof cell === 'undefined' || cell === null || cell.Block === null) continue;
 
 
@@ -99,29 +82,12 @@ function tick() {
                 for(let j = end; j >= i; --j) {
                     GAMEDATA[j].Block = null;           // clear blocks
                 }
-                return;
-                /*
-                clearInterval(window.interval);
                 draw();
-                window.INPUT_PAUSED = true;
-                window.setTimeout(function(){
-                    for(let j = GAMEDATA.length-1; j >= 0; --j) {
-                        let cell = (new TableIndex(j)).cell;
-                        if(cell.Block !== null) {
-                            console.log("moving: ");
-                            console.log(cell);
-                        }
-                        moveDown(j);
-                    }
-                    draw();
-                    window.INPUT_PAUSED = false;
-                    startTimer();
-                }, 100);
+                clearInterval(interval);
+                window.setTimeout(tick, 100);
 
-                //window.INPUT_PAUSED = true;
-                //setTimeout(tick, 100);
                 return;
-                */
+
             }
         }
 
@@ -155,16 +121,6 @@ function addShape() {
     //draw();
 }
 
-/*
-function addShapeAt(shape, startIdx) {
-
-    if(startIdx < 0) return false;
-
-    if(checkAddShapeAt(shape, startIdx)) forceAddShapeAt(shape, startIdx);
-
-
-}
-*/
 
 function checkAddShapeAt(shape, startIdx) {
 

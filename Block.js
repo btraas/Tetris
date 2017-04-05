@@ -56,12 +56,10 @@ function Point(x, y) {
         this.y = tmpX;
     };
     this.rotate = function() {
-        if(this.orientation % 1 === 0) this.x = this.x/-1;
+        if(this.orientation % 1 === 1) this.x = this.x/-1;
         else this.y = this.y/-1;
 
         this.invert();
-        //this.x += 2;
-        //this.y += 2;
 
         this.orientation++;
     }
@@ -79,8 +77,6 @@ function Cell(x, y) {
     this.blocked = false;
     this.Point = new Point(x,y);
     this.Block = null;
-    //this.connectedCache = [];
-    //this.cachedTick = -1;
     this.connectedToBottom = false;
 
     this.idx = function() {
@@ -115,17 +111,9 @@ function Cell(x, y) {
     this.connectedBlocks = function(skip) {
         //console.log("window.ticks ("+window.ticks+") === this.cachedTick ("+this.cachedTick+")? ");
 
-        let root = false;
         if(typeof skip === 'undefined') {
             skip = [];
-            root = true;
         }
-
-        if(root && window.ticks === this.cachedTick) {
-        //    console.log("Yes");
-         //   return this.connectedCache;
-        }
-       // console.log("no");
 
         let found = [];
         if(this.Block === null) return found;
@@ -139,20 +127,13 @@ function Cell(x, y) {
         let prevY = this.Point.y - 1;
 
         if(nextX < BOARD_X) {
-            //console.log("checking next X ("+nextX+") for idx "+this.idx() + " (SKIP: "+skip+")");
             let cell = new Cell(nextX, this.Point.y);
-            //console.log(cell.idx());
             if(skip.indexOf(cell.idx()) === -1) {
                 let f2 = cell.connectedBlocks(skip);
-               // console.log("concatting "+cell.idx() + "("+f2.length+") with " + this.idx() + "("+found.length+")" );
                 found = found.concat(f2);
                 skip = skip.concat(f2);
-            } else {
-              //  console.log("skipping already added cell "+cell.idx());
             }
         }
-        //console.log(found);
-
 
         if(prevX >= 0) {
             let cell = new Cell(prevX, this.Point.y);
@@ -181,15 +162,6 @@ function Cell(x, y) {
             }
         }
 
-        if(root) {
-            //console.log("caching");
-            //this.connectedCache = found;
-            //this.cachedTick = window.ticks;
-            for(let i = 0; i < found.length; ++i) {
-                (new TableIndex(found[i])).cell.cache(found);
-                //found[i].cachedTick = window.ticks;
-            }
-        }
 
         return found;
 
@@ -311,7 +283,7 @@ SHAPES = {};
 SHAPES.CYAN     = new Shape([p(0,0), p(1,0), p(2,0), p(3,0)], SIZE, "#00BCD4" );
 SHAPES.YELLOW   = new Shape([p(0,0), p(0,1), p(1,0), p(1,1)], SIZE, "#FFEB3B");
 SHAPES.ORANGE   = new Shape([p(0,0), p(0,1), p(0,2), p(1,2)], SIZE, "#FF9800");
-SHAPES.BLUE     = new Shape([p(0,0), p(0,1), p(1,1), p(2,1)], SIZE, "#2196F3");
+SHAPES.BLUE     = new Shape([p(0,0), p(0,1), p(1,1), p(2,1)], SIZE, "#2962FF");
 SHAPES.PURPLE   = new Shape([p(0,0), p(1,0), p(1,1), p(2,0)], SIZE, "#9C27B0");
 SHAPES.GREEN    = new Shape([p(0,0), p(0,1), p(1,1), p(1,2)], SIZE, "#4CAF50");
 SHAPES.RED      = new Shape([p(0,0), p(1,0), p(1,1), p(2,1)], SIZE, "#F44336");
