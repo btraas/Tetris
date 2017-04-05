@@ -1,38 +1,57 @@
 /**
  * Created by Brayd on 4/4/2017.
  */
-
-
-var randomProperty = function (obj) {
-    var keys = Object.keys(obj)
-    return obj[keys[ keys.length * Math.random() << 0]];
+const randomProperty = function (obj) {
+    const keys = Object.keys(obj);
+    return obj[keys[keys.length * Math.random() << 0]];
 };
 
-NEXT_SHAPE = randomProperty(SHAPES);
-CURRENT_SHAPE = null;
+window.NEXT_SHAPE = null;
+window.CURRENT_SHAPE = null;
 GAMEDATA = [];
-interval = 0;
+window.interval = null;
 ticks = 0;
 cleared = 0;
+extraScore = 0;
 
 function haveBlocks(start, end) {
     for(let i = start; i <= end && i < GAMEDATA.length; ++i) {
-        if(i < 0 || GAMEDATA[i] == null) continue;
-        if(GAMEDATA[i].Block == null) return false;
+        if(i < 0 || GAMEDATA[i] === null) continue;
+        if(GAMEDATA[i].Block === null) return false;
     }
     return true;
 }
 
 function tick() {
-    var move = false;
-    var toMove = [];
+    if(window.NEXT_SHAPE === null) return;
+    ++ticks;
+    let move = false;
+    const toMove = [];
 
+    for(let i = 0; i < GAMEDATA.length; ++i) {
+        if(GAMEDATA[i] === null || GAMEDATA[i].Block === null) {
+            GAMEDATA[i].blocked = false;
+        } else {
+            GAMEDATA[i].connectedToBottom = false;
+            if (GAMEDATA[i].onBottom()) { // last row
+                let connected = GAMEDATA[i].connectedBlocks();
+                for(let j = 0; j < connected.length; ++j) {
+                    GAMEDATA[connected[j]].connectedToBottom = true;
+                }
+            }
+        }
+    }
 
     for (let i = GAMEDATA.length - 1; i >= 0; --i) {
-        var nextRow = i + parseInt(BOARD_X);
-        if(GAMEDATA[i].Block != null && !GAMEDATA[i].blocked) { // if block exists here, and is moveable
-            var orig = GAMEDATA[i].Block;
-            if(nextRow < GAMEDATA.length && GAMEDATA[nextRow] != null && !GAMEDATA[nextRow].blocked) { // if space below is empty/moveable
+        const nextRow = i + parseInt(BOARD_X);
+
+        let cell = (new TableIndex(i)).cell;
+
+
+        /*
+        if(GAMEDATA[i].Block !== null && !GAMEDATA[i].blocked) { // if block exists here, and is moveable
+            //let orig = GAMEDATA[i].Block;
+            if(nextRow < GAMEDATA.length && GAMEDATA[nextRow] !== null && !GAMEDATA[nextRow].blocked) { // if space below is empty/moveable
                 //alert('moving '+i+" to "+nextRow);
                 move = true;
                 toMove.push(i);
@@ -42,6 +61,26 @@ function tick() {
                 break;
             }
         }
+        */
+        if(typeof cell === 'undefined' || cell === null || cell.Block === null) continue;
+
+
+        if(cell.Block.controllable) { // short circuit and prevent moving
+            let below = cell.below();
+            //console.log(below);
+
+            if(below === null || (below.Block !== null && !below.Block.controllable) ) {
+                console.log("breaking");
+                console.log(below);
+                move = false;
+                break;
+            }
+        }
+
+        if((!cell.connectedToBottom) || cell.Block.controllable) {
+            move = true;
+            toMove.push(i);
+        }
     }
     if(move) { // if we are moving the shape down
         for(let i = 0; i < toMove.length; ++i)
@@ -49,39 +88,53 @@ function tick() {
     } else {
 
         // clear blocks
-        for(let i = GAMEDATA.length - BOARD_X; i >= 0; i-=BOARD_X) {
-            var end = (i+BOARD_X)-1;
-            if(haveBlocks(i, end)) {
+        for(let i = GAMEDATA.length - BOARD_X; i >= 0; i-=BOARD_X) { //iterate from begining of the last line to beginnig of first (one line at a time)
+            const end = (i + BOARD_X) - 1;
+            if(haveBlocks(i, end)) {            // if this whole row has blocks
                 cleared++;
-                for(let j = end; j >= 0; --j) {
+                for(let j = GAMEDATA.length - 1; j >= 0; --j) {
                     GAMEDATA[j].blocked = false;
+                    if(GAMEDATA[j].Block !== null) GAMEDATA[j].Block.controllable = false;
                 }
                 for(let j = end; j >= i; --j) {
-                    GAMEDATA[j].Block = null;
+                    GAMEDATA[j].Block = null;           // clear blocks
                 }
-                clearInterval(interval);
-                draw();
-                INPUT_PAUSED = true;
-                setTimeout(function(){startTimer(); INPUT_PAUSED = false;}, 100);
                 return;
+                /*
+                clearInterval(window.interval);
+                draw();
+                window.INPUT_PAUSED = true;
+                window.setTimeout(function(){
+                    for(let j = GAMEDATA.length-1; j >= 0; --j) {
+                        let cell = (new TableIndex(j)).cell;
+                        if(cell.Block !== null) {
+                            console.log("moving: ");
+                            console.log(cell);
+                        }
+                        moveDown(j);
+                    }
+                    draw();
+                    window.INPUT_PAUSED = false;
+                    startTimer();
+                }, 100);
+
+                //window.INPUT_PAUSED = true;
+                //setTimeout(tick, 100);
+                return;
+                */
             }
         }
 
 
         for(let i = 0; i < GAMEDATA.length; ++i) { // reset blocked status. TODO change to if stuck only
-            if(GAMEDATA[i].Block == null) {
-                GAMEDATA[i].blocked = false;
-            } else {
-                GAMEDATA[i].blocked = true;
-            }
+            GAMEDATA[i].blocked = GAMEDATA[i].Block !== null;
+            if(GAMEDATA[i].Block !== null) GAMEDATA[i].Block.controllable = false;
         }
         addShape();
     }
-
-
+    window.INPUT_PAUSED = false;
+    if(window.NEXT_SHAPE !== null) startTimer();
     draw();
-
-
 
 
 }
@@ -89,20 +142,20 @@ function tick() {
 
 function moveableBlock(idx) {
     if(idx < 0 || idx >= GAMEDATA.length) return false;
-    if(GAMEDATA[idx] == null) return false;
-    if(GAMEDATA[idx].blocked) return false;
-    return true;
+    if(GAMEDATA[idx] === null) return false;
+    return !GAMEDATA[idx].blocked;
+
 }
 
 function addShape() {
-    var shape = NEXT_SHAPE;
 
-    forceAddShapeAt(NEXT_SHAPE, 0, 0);
+    let cont = forceAddShapeAt(window.NEXT_SHAPE, 0, 0);
 
-    NEXT_SHAPE = randomProperty(SHAPES);
+    if(cont) window.NEXT_SHAPE = randomProperty(SHAPES);
     //draw();
 }
 
+/*
 function addShapeAt(shape, startIdx) {
 
     if(startIdx < 0) return false;
@@ -111,74 +164,123 @@ function addShapeAt(shape, startIdx) {
 
 
 }
+*/
 
 function checkAddShapeAt(shape, startIdx) {
 
     if(startIdx < 0) return false;
 
     for(let i = 0; i < shape.blocks.length; ++i) {
-        var idx = startIdx + shape.blocks[i].Point.x + (shape.blocks[i].Point.y * BOARD_X);
+        const idx = startIdx + shape.blocks[i].Point.x + (shape.blocks[i].Point.y * BOARD_X);
         if(!moveableBlock(idx)) {
-            var tableIndex = new TableIndex(idx);
+            //let tableIndex = new TableIndex(idx);
             //alert('cant move to '+idx.x + ","+idx.y)
             return false;
         }
 
-    };
+    }
     return true;
 
 }
 
 function forceAddShapeAt(shape, startIdx) {
-    CURRENT_SHAPE = shape;
-    $.each(shape.blocks, function(key, block) {
-        var idx = startIdx + block.Point.x + (block.Point.y * BOARD_X);
-        if(!moveableBlock(idx)) {
+    window.CURRENT_SHAPE = shape;
+
+    for(let i = 0;  i < shape.blocks.length; ++i)
+    {
+        const block = shape.blocks[i];
+        block.controllable = true;
+        const idx = startIdx + block.Point.x + (block.Point.y * BOARD_X);
+        if (!moveableBlock(idx)) {
+            window.clearInterval(window.interval);
+            window.INPUT_PAUSED = true;
+            window.NEXT_SHAPE = null;
             alert('Game Over!');
-            window.clearInterval(interval);
-            INPUT_PAUSED = true;
             return false;
         }
         GAMEDATA[idx].Block = block;
-    });
+    }
+    return true;
+}
+
+function replaceChildren(parent, child) {
+    while(parent.lastChild) {
+        parent.removeChild(parent.lastChild);
+    }
+    if(child !== null) parent.appendChild(child);
 }
 
 function draw() {
+    if(!window.NEXT_SHAPE) return false;
     for (let i = GAMEDATA.length - 1; i >= 0; --i) {
-        if(GAMEDATA[i].Block != null)
-            $('#gameTable #cell_'+i).html(GAMEDATA[i].Block.html());
+        let elem = document.querySelector('#gameTable #cell_'+i);
+
+        if(GAMEDATA[i].Block !== null)
+            replaceChildren(elem, GAMEDATA[i].Block.element());
         else
-            $('#gameTable #cell_'+i).html('');
+            replaceChildren(elem, null);
     }
-    $('#nextShape').html(NEXT_SHAPE.html());
+
+    // update score
+    let score = (ticks * 10) + (cleared * 1000) + extraScore + "";
+    replaceChildren(document.querySelector('#score'), document.createTextNode(score));
+
+    // update next shape
+    replaceChildren(document.querySelector('#nextShape'), window.NEXT_SHAPE.element());
 }
 
 function startTimer() {
-    interval = window.setInterval(function() {tick(); ticks++}, TICK_DELAY);
+    window.clearInterval(window.interval);
+    if(!window.NEXT_SHAPE) return;
+    window.interval = window.setInterval(tick, TICK_DELAY);
 }
 
-window.onload = function(){
-    var table = document.createElement("table");
+initTable = function() {
+    const table = document.createElement("table");
     table.id = "gameTable";
     for(let i = 0; i < BOARD_Y; ++i) {
-        var row = document.createElement("tr");
+        const row = document.createElement("tr");
         for(let j = 0; j < BOARD_X; ++j) {
             GAMEDATA.push(new Cell(j,i));
-            var cell = document.createElement("td");
-            cell.id = "cell_"+(GAMEDATA.length-1)
+            const cell = document.createElement("td");
+            cell.id = "cell_"+(GAMEDATA.length-1);
             cell.width = BLOCK_SIZE;
             cell.height = BLOCK_SIZE;
-            cell.border=1
+            cell.border=1;
             row.appendChild(cell)
         }
         table.appendChild(row);
     }
-    document.querySelector('#gameboard').appendChild(table)
+    replaceChildren(document.querySelector('#gameboard'), table);
+};
 
-    $('#nextShape').html(NEXT_SHAPE.html());
+
+window.onload = function() {
+
+    initTable();
+    draw();
+
+};
+
+window.start = function(){
+
+    window.clearInterval(interval);
+
+    window.NEXT_SHAPE = randomProperty(SHAPES);
+    window.CURRENT_SHAPE = null;
+    window.GAMEDATA = [];
+    window.interval = null;
+    window.ticks = 0;
+    window.cleared = 0;
+    window.extraScore = 0;
+
+    initTable();
+
+    //document.querySelector('#nextShape').innerHTML = window.NEXT_SHAPE.html();
+    draw();
     startTimer();
 
 
-}
+};
 
 
