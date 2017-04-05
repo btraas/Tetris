@@ -30,6 +30,7 @@ function Block(point, size, color) {
         e.style.height = this.size + "px";
         e.style.width  = this.size + "px";
         e.style.backgroundColor = this.color;
+        e.style.boxShadow = "inset 0px 1px 4px 2px rgba(0,0,0,0.3)";
 
         return e;
     };
@@ -307,10 +308,10 @@ if(typeof BLOCK_SIZE === 'undefined') alert('BLOCK_SIZE is undefined!');
 
 SIZE = BLOCK_SIZE;
 SHAPES = {};
-SHAPES.CYAN     = new Shape([p(0,0), p(1,0), p(2,0), p(3,0)], SIZE, "cyan" );
-SHAPES.YELLOW   = new Shape([p(0,0), p(0,1), p(1,0), p(1,1)], SIZE, "yellow");
-SHAPES.ORANGE   = new Shape([p(0,0), p(0,1), p(0,2), p(1,2)], SIZE, "orange");
-SHAPES.BLUE     = new Shape([p(0,0), p(0,1), p(1,1), p(2,1)], SIZE, "blue");
-SHAPES.PURPLE   = new Shape([p(0,0), p(1,0), p(1,1), p(2,0)], SIZE, "magenta");
-SHAPES.GREEN    = new Shape([p(0,0), p(0,1), p(1,1), p(1,2)], SIZE, "lime");
-SHAPES.RED      = new Shape([p(0,0), p(1,0), p(1,1), p(2,1)], SIZE, "red");
+SHAPES.CYAN     = new Shape([p(0,0), p(1,0), p(2,0), p(3,0)], SIZE, "#00BCD4" );
+SHAPES.YELLOW   = new Shape([p(0,0), p(0,1), p(1,0), p(1,1)], SIZE, "#FFEB3B");
+SHAPES.ORANGE   = new Shape([p(0,0), p(0,1), p(0,2), p(1,2)], SIZE, "#FF9800");
+SHAPES.BLUE     = new Shape([p(0,0), p(0,1), p(1,1), p(2,1)], SIZE, "#2196F3");
+SHAPES.PURPLE   = new Shape([p(0,0), p(1,0), p(1,1), p(2,0)], SIZE, "#9C27B0");
+SHAPES.GREEN    = new Shape([p(0,0), p(0,1), p(1,1), p(1,2)], SIZE, "#4CAF50");
+SHAPES.RED      = new Shape([p(0,0), p(1,0), p(1,1), p(2,1)], SIZE, "#F44336");
