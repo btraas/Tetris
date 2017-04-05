@@ -126,8 +126,19 @@ function checkAddShapeAt(shape, startIdx) {
 
     if(startIdx < 0) return false;
 
+    const tableIdx1 = new TableIndex(startIdx);
+    const beginCol = tableIdx1.x;
+
+    const tableIdx2 = new TableIndex(startIdx + shape.length());
+    let endCol = tableIdx2.x;
+
+    if(endCol < beginCol) {
+            return false;
+    } // cannot cross left/right edges
+
+
     for(let i = 0; i < shape.blocks.length; ++i) {
-        const idx = startIdx + shape.blocks[i].Point.x + (shape.blocks[i].Point.y * BOARD_X);
+        const idx = startIdx + shape.blocks[i].Point.x + (shape.blocks[i].Point.y * BOARD_X) - 0;
         if(!moveableBlock(idx)) {
             //let tableIndex = new TableIndex(idx);
             //alert('cant move to '+idx.x + ","+idx.y)

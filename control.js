@@ -77,7 +77,7 @@ function rotateShape() {
     let endCol = tableIdx2.x;
 
     if(endCol < beginCol) {
-        return false;
+    //    return false;
     } // cannot cross left/right edges
 
     // also need to check if crossing the side
@@ -87,8 +87,19 @@ function rotateShape() {
             GAMEDATA[replace[i]].Block = null;
         }
         forceAddShapeAt(window.CURRENT_SHAPE, replace[0]);
+    } else if(checkAddShapeAt(tmpShape, replace[0]+1)) {
+        //alert('all good')
+        for(let i = 0; i < replace.length; ++i) {
+            GAMEDATA[replace[i]].Block = null;
+        }
+        forceAddShapeAt(window.CURRENT_SHAPE, replace[0]+1);
+    } else if(checkAddShapeAt(tmpShape, replace[0]-1)) {
+        //alert('all good')
+        for (let i = 0; i < replace.length; ++i) {
+            GAMEDATA[replace[i]].Block = null;
+        }
+        forceAddShapeAt(window.CURRENT_SHAPE, replace[0] - 1);
     }
-
     //addShapeAt(window.CURRENT_SHAPE, firstIdx);
 
 
