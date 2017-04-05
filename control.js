@@ -182,7 +182,9 @@ function handleKey(e){
 
 
     else if (keycode == ARROW_DOWN) {
+        clearInterval(interval);
         tick();
+        startTimer();
     } else if (keycode == ARROW_UP) {
         rotateShape();
     } else {
