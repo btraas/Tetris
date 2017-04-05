@@ -244,8 +244,8 @@ initTable = function() {
             GAMEDATA.push(new Cell(j,i));
             const cell = document.createElement("td");
             cell.id = "cell_"+(GAMEDATA.length-1);
-            cell.width = BLOCK_SIZE;
-            cell.height = BLOCK_SIZE;
+            cell.width = BLOCK_SIZE + 2;
+            cell.height = BLOCK_SIZE + 2;
             cell.border=1;
             row.appendChild(cell)
         }
@@ -283,4 +283,16 @@ window.start = function(){
 
 };
 
+window.paused = false;
+window.togglePause = function(elem) {
 
+    if(window.paused) {
+        window.paused = false;
+        replaceChildren(elem, document.createTextNode("PAUSE"));
+        startTimer();
+    } else {
+        window.paused = true;
+        replaceChildren(elem, document.createTextNode("UNPAUSE"));
+        clearInterval(window.interval);
+    }
+};

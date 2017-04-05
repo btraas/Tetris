@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>3975 Tetris</title>
     <script>
-        BLOCK_SIZE = 24;
+        BLOCK_SIZE = 26;
         BOARD_X = 10;
         BOARD_Y = 20;
         TICK_DELAY = 1000;
@@ -16,10 +16,19 @@
         body {
             background-color: #222222;
             color: white;
+            text-align: center;
+            border: 0px solid blue;
+            font-family: Arial,sans-serif;
+        }
+        h1 {
+            font-size: 300%;
         }
         #main {
-            border: 0px solid blue;
-            text-align: center;
+            display: table;
+            margin: 0 auto;
+            padding: 20px;
+            border: 2px solid lightcyan;
+            border-radius: 5px;
         }
         #maincontent {
             border-top: 1px solid lightsteelblue;
@@ -28,9 +37,11 @@
             margin: 0 auto;
             text-align: center;
         }
-        #start {
+        .main-btn {
             padding: 20px;
-            margin-bottom: 30px;
+        }
+        #controls {
+            margin-top: 30px;
         }
         #gameboard table {
             border-collapse: collapse;
@@ -48,7 +59,7 @@
 
         #upnext {
             color: gray;
-            min-width: 128px;
+            min-width: 200px;
             padding: 10px;
             height: 250px;
             border: 1px solid white;
@@ -78,7 +89,8 @@
 
 <div id="main">
     <h1>Tetris 3900</h1>
-    <button id='start' onclick="start()">START</button>
+    <button id='start' class='main-btn' onclick="start()">START</button><button id='pause' class='main-btn' onclick="togglePause(this)">PAUSE</button>
+    <p id="controls">move: &#8596;    rotate: &#8593;    drop: &#8595;</p>
     <div id="maincontent">
         <div id="gameboard"></div>
         <div id="upnext">
