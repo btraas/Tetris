@@ -263,9 +263,9 @@ function Shape(grid, size, color) {
             let block = this.blocks[i];
             let inner = document.createElement("div");
             inner.style.position = "absolute";
-            inner.style.left = block.ShapePos.x + "px";
-            inner.style.top  = block.ShapePos.y + "px";
-            inner.style.border = "1px solid lightSteelBlue";
+            inner.style.left = parseInt(block.ShapePos.x+(3*block.Point.x)) + "px";
+            inner.style.top  = parseInt(block.ShapePos.y+(3*block.Point.y)) + "px";
+            inner.style.border = "1px solid #444444";
             inner.appendChild(block.element());
             div.appendChild(inner);
         }
