@@ -264,6 +264,8 @@ window.onload = function() {
 
 window.start = function(){
 
+    window.paused = false;
+    replaceChildren(document.querySelector("#pause"), document.createTextNode("PAUSE"));
     window.clearInterval(interval);
 
     window.NEXT_SHAPE = randomProperty(SHAPES);
